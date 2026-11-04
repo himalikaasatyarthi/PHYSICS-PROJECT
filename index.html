@@ -1,128 +1,981 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#090d18">
-  <title>CoordinateVerse | 3D Physics Lab</title>
-  <link rel="stylesheet" href="./css/style.css">
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
-      }
-    }
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark light">
+
+    <meta name="description" content="Coordinate Universe: an accessible interactive Cartesian, Polar, Cylindrical and Spherical coordinate converter with 3D visualisations.">
+
+    <title>Coordinate Universe — 3D Coordinate Converter</title>
+
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <div class="app-shell">
-    <aside class="sidebar">
-      <a class="brand" href="#">
-        <span class="brand-mark">CV</span>
-        <span><strong>CoordinateVerse</strong><small>INTERACTIVE PHYSICS LAB</small></span>
-      </a>
-      <div class="nav-label">WORKSPACE</div>
-      <a class="nav-link active" href="#lab"><span>⌘</span> Coordinate Lab</a>
-      <a class="nav-link" href="#physics"><span>◉</span> Physics connections</a>
-      <a class="nav-link" href="#guide"><span>▤</span> Quick guide</a>
-      <div class="sidebar-bottom">
-        <div class="status-card">
-          <span class="status-dot" id="engine-dot"></span>
-          <div><strong id="engine-status">JavaScript fallback</strong><small>Calculation engine</small></div>
-        </div>
-        <p class="sidebar-note">A learning project for exploring position in 2D and 3D space.</p>
-      </div>
-    </aside>
 
-    <main class="main-content">
-      <header class="topbar">
-        <div><div class="eyebrow">PHYSICS • MATHEMATICS • VISUALIZATION</div><h1>Explore space in 3D.</h1></div>
-        <div class="topbar-chip"><span class="live-dot"></span> LIVE PLAYGROUND</div>
-      </header>
+<a class="skip-link" href="#converter">
+    Skip to coordinate converter
+</a>
 
-      <section class="intro-row">
-        <div>
-          <p class="lead">Move a point through space and see how its position is described in different coordinate systems.</p>
-        </div>
-        <div class="intro-tag">Cartesian → Polar → Cylindrical → Spherical</div>
-      </section>
+<div class="wrap">
 
-      <section class="workspace" id="lab">
-        <div class="panel visual-panel">
-          <div class="panel-heading">
-            <div><div class="eyebrow">3D SPACE</div><h2>Coordinate playground</h2></div>
-            <span class="tiny-pill">DRAG TO ORBIT</span>
-          </div>
-          <div id="scene-container" aria-label="Interactive 3D coordinate visualization"></div>
-          <div class="legend">
-            <span><i class="legend-x"></i> X axis</span>
-            <span><i class="legend-y"></i> Y axis</span>
-            <span><i class="legend-z"></i> Z axis</span>
-            <span><i class="legend-point"></i> Point P</span>
-          </div>
-          <div class="scene-actions">
-            <button class="button button-ghost" id="reset-view">Reset view</button>
-            <label class="toggle"><input type="checkbox" id="grid-toggle" checked><span></span> Grid</label>
-            <label class="toggle"><input type="checkbox" id="projection-toggle" checked><span></span> Projections</label>
-          </div>
+    <!-- HEADER AND ACCESSIBILITY CONTROLS -->
+    <header class="topbar">
+
+        <div class="brand">
+            <div class="brand-mark" aria-hidden="true">✦</div>
+
+            <div>
+                <span class="brand-name">Coordinate Universe</span>
+                <span class="brand-sub">A little space for big dimensions</span>
+            </div>
         </div>
 
-        <div class="panel controls-panel">
-          <div class="panel-heading">
-            <div><div class="eyebrow">CONTROL POINT P</div><h2>Set position</h2></div>
-            <span class="point-label">P</span>
-          </div>
-          <p class="panel-copy">Change the values or use the sliders. The 3D point and all coordinate readouts update together.</p>
+        <nav class="toolbar" aria-label="Display and accessibility controls">
 
-          <div class="input-grid">
-            <label class="field"><span>X <b>Cartesian</b></span><input id="x-input" type="number" min="-5" max="5" step="0.1" value="3"></label>
-            <label class="field"><span>Y <b>Cartesian</b></span><input id="y-input" type="number" min="-5" max="5" step="0.1" value="4"></label>
-            <label class="field"><span>Z <b>Cartesian</b></span><input id="z-input" type="number" min="-5" max="5" step="0.1" value="3"></label>
-          </div>
-          <div class="sliders">
-            <label class="slider-row"><span>X position</span><input id="x-slider" type="range" min="-5" max="5" step="0.1" value="3"><output id="x-output">3.0</output></label>
-            <label class="slider-row"><span>Y position</span><input id="y-slider" type="range" min="-5" max="5" step="0.1" value="4"><output id="y-output">4.0</output></label>
-            <label class="slider-row"><span>Z position</span><input id="z-slider" type="range" min="-5" max="5" step="0.1" value="3"><output id="z-output">3.0</output></label>
-          </div>
+            <button class="tool-btn" id="themeBtn"
+                type="button" aria-pressed="false"
+                title="Switch light and dark appearance">
+                ☼ Light mode
+            </button>
 
-          <div class="readout-heading"><span>COORDINATE CONVERSION</span><span class="unit-note">Angles in degrees</span></div>
-          <div class="result-card">
-            <div class="result-title"><span class="result-icon polar-icon">P</span><strong>Polar (XY plane)</strong></div>
-            <div class="result-values"><div><small>r</small><strong id="polar-r">5.00</strong></div><div><small>θ</small><strong id="polar-theta">53.13°</strong></div></div>
-          </div>
-          <div class="result-card">
-            <div class="result-title"><span class="result-icon cyl-icon">C</span><strong>Cylindrical</strong></div>
-            <div class="result-values"><div><small>r</small><strong id="cyl-r">5.00</strong></div><div><small>θ</small><strong id="cyl-theta">53.13°</strong></div><div><small>z</small><strong id="cyl-z">3.00</strong></div></div>
-          </div>
-          <div class="result-card">
-            <div class="result-title"><span class="result-icon sph-icon">S</span><strong>Spherical</strong></div>
-            <div class="result-values"><div><small>ρ</small><strong id="sph-rho">5.83</strong></div><div><small>θ</small><strong id="sph-theta">53.13°</strong></div><div><small>φ</small><strong id="sph-phi">59.04°</strong></div></div>
-          </div>
-          <p class="hint">Convention: spherical φ is measured down from the positive Z-axis; θ is the azimuth angle in the XY plane.</p>
+            <button class="tool-btn" id="contrastBtn"
+                type="button" aria-pressed="false">
+                ◐ High contrast
+            </button>
+
+            <button class="tool-btn" id="textBtn"
+                type="button" aria-pressed="false">
+                A+ Larger text
+            </button>
+
+            <button class="tool-btn" id="easyBtn"
+                type="button" aria-pressed="false">
+                ☷ Easy read
+            </button>
+
+            <button class="tool-btn" id="motionBtn"
+                type="button" aria-pressed="false">
+                Ⅱ Reduce motion
+            </button>
+
+        </nav>
+    </header>
+
+
+    <!-- HERO SECTION -->
+    <section class="hero" aria-labelledby="hero-title">
+
+        <div class="eyebrow">
+            Engineering physics · Interactive explorer
         </div>
-      </section>
 
-      <section class="section-block" id="physics">
-        <div class="section-heading"><div><div class="eyebrow">WHY IT MATTERS</div><h2>Coordinate systems in physics</h2></div><p>Choose a geometry that matches the symmetry of the problem.</p></div>
-        <div class="physics-grid">
-          <article class="physics-card"><div class="physics-symbol sphere-symbol">◎</div><h3>Spherical symmetry</h3><p>Useful for fields around a point charge or a spherical mass distribution.</p><div class="formula">E = kQ / r²</div><small>Example: electric field of a point charge</small></article>
-          <article class="physics-card"><div class="physics-symbol cylinder-symbol">◉</div><h3>Cylindrical symmetry</h3><p>Useful for fields around a long straight current-carrying wire.</p><div class="formula">B = μ₀I / 2πr</div><small>Example: magnetic field around a wire</small></article>
-          <article class="physics-card"><div class="physics-symbol polar-symbol">↗</div><h3>Polar motion</h3><p>Useful for describing motion along a circular path using radius and angle.</p><div class="formula">v = rω</div><small>Example: uniform circular motion</small></article>
-        </div>
-      </section>
+        <h1 id="hero-title">
+            Explore space in
+            <span class="gradient-text">every coordinate.</span>
+        </h1>
 
-      <section class="section-block guide-section" id="guide">
-        <div class="section-heading"><div><div class="eyebrow">QUICK REFERENCE</div><h2>Understand the coordinates</h2></div></div>
-        <div class="guide-grid">
-          <div class="guide-item"><strong>Polar</strong><p>Two-dimensional position using distance r from the origin and angle θ from the positive X-axis.</p><code>x = r cos θ</code><code>y = r sin θ</code></div>
-          <div class="guide-item"><strong>Cylindrical</strong><p>Three-dimensional position using radius r, azimuth θ and height z.</p><code>x = r cos θ</code><code>y = r sin θ</code><code>z = z</code></div>
-          <div class="guide-item"><strong>Spherical</strong><p>Three-dimensional position using distance ρ, azimuth θ and polar angle φ from +Z.</p><code>x = ρ sin φ cos θ</code><code>y = ρ sin φ sin θ</code><code>z = ρ cos φ</code></div>
+        <p>
+            Convert a point between Cartesian, Polar, Cylindrical
+            and Spherical coordinates. See where the point lives
+            in 3D, rotate the models, and learn why physicists
+            choose different coordinate systems.
+        </p>
+
+        <div class="hero-tags">
+
+            <span class="tag">↔ 12 conversion directions</span>
+
+            <span class="tag">◈ Interactive 3D models</span>
+
+            <span class="tag">⌨ Keyboard friendly</span>
+
+            <span class="tag">
+                ±1,000,000,000,000 input range
+            </span>
+
         </div>
-      </section>
-      <footer>COORDINATEVERSE <span>Built for learning physics through visualization.</span></footer>
+
+    </section>
+
+
+    <!-- MAIN APPLICATION -->
+    <main id="main-content">
+
+        <!-- COORDINATE CONVERTER -->
+        <div class="layout" id="converter">
+
+            <section class="panel" aria-labelledby="converter-title">
+
+                <div class="section-kicker">
+                    01 / Set your point
+                </div>
+
+                <h2 id="converter-title">
+                    Coordinate converter
+                </h2>
+
+                <p class="panel-intro">
+                    Choose what you have and what you want.
+                    Then enter the numbers.
+                </p>
+
+
+                <!-- SOURCE AND TARGET SYSTEMS -->
+                <div class="system-row">
+
+                    <div>
+
+                        <label class="field-label" for="sourceSystem">
+                            I have
+                            <span class="unit-badge">(from)</span>
+                        </label>
+
+                        <div class="select-wrap">
+
+                            <select id="sourceSystem">
+
+                                <option value="cartesian">
+                                    Cartesian (x, y, z)
+                                </option>
+
+                                <option value="polar">
+                                    Polar (r, θ)
+                                </option>
+
+                                <option value="cylindrical">
+                                    Cylindrical (r, θ, z)
+                                </option>
+
+                                <option value="spherical">
+                                    Spherical (ρ, θ, φ)
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <button class="swap-btn" id="swapBtn"
+                        type="button"
+                        aria-label="Swap source and target coordinate systems"
+                        title="Swap from and to">
+
+                        ⇄
+
+                    </button>
+
+
+                    <div>
+
+                        <label class="field-label" for="targetSystem">
+                            I want
+                            <span class="unit-badge">(to)</span>
+                        </label>
+
+                        <div class="select-wrap">
+
+                            <select id="targetSystem">
+
+                                <option value="spherical">
+                                    Spherical (ρ, θ, φ)
+                                </option>
+
+                                <option value="cartesian">
+                                    Cartesian (x, y, z)
+                                </option>
+
+                                <option value="polar">
+                                    Polar (r, θ)
+                                </option>
+
+                                <option value="cylindrical">
+                                    Cylindrical (r, θ, z)
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- POLAR PLANE SELECTION -->
+                <div id="planeBox" class="plane-box" hidden>
+
+                    <label class="field-label" for="planeSelect">
+                        Which flat plane should Polar use?
+                    </label>
+
+                    <select id="planeSelect" class="coordinate-input">
+
+                        <option value="xy">
+                            XY plane (usual flat page)
+                        </option>
+
+                        <option value="xz">
+                            XZ plane
+                        </option>
+
+                        <option value="yz">
+                            YZ plane
+                        </option>
+
+                    </select>
+
+                    <span class="field-hint">
+                        Polar has only two values.
+                        This tells the app where its 2D point sits in 3D.
+                    </span>
+
+                </div>
+
+
+                <!-- DYNAMIC INPUT FIELDS -->
+                <div id="inputFields"
+                    class="coord-fields"
+                    aria-live="polite">
+                </div>
+
+
+                <!-- DECIMAL PRECISION -->
+                <div class="field-label">
+                    Displayed decimal places
+                </div>
+
+                <div style="display:flex;align-items:center;gap:12px">
+
+                    <input
+                        id="precision"
+                        type="range"
+                        min="0"
+                        max="10"
+                        value="6"
+                        step="1"
+                        aria-label="Displayed decimal places"
+                        style="flex:1;accent-color:var(--accent)"
+                    >
+
+                    <output
+                        id="precisionValue"
+                        for="precision"
+                        style="min-width:46px;text-align:center;font-weight:800">
+
+                        6
+
+                    </output>
+
+                </div>
+
+
+                <!-- CONVERTER BUTTONS -->
+                <div class="actions">
+
+                    <button class="primary-btn"
+                        id="convertBtn"
+                        type="button">
+
+                        ✦ Convert coordinates
+
+                    </button>
+
+                    <button class="soft-btn"
+                        id="resetBtn"
+                        type="button">
+
+                        ↺ Reset
+
+                    </button>
+
+                </div>
+
+
+                <p class="hintline">
+
+                    Inputs: −1 trillion to +1 trillion ·
+                    Up to 10 decimal places ·
+                    Angles are in degrees.
+
+                    Browser floating-point arithmetic can round
+                    extremely tiny decimal differences at the largest values.
+
+                </p>
+
+
+                <!-- ERROR MESSAGE -->
+                <div id="inputError"
+                    class="notice"
+                    role="alert"
+                    hidden>
+                </div>
+
+            </section>
+
+
+            <!-- RESULTS SECTION -->
+            <section class="panel result-panel"
+                aria-labelledby="result-title"
+                aria-live="polite">
+
+                <div class="result-top">
+
+                    <div>
+
+                        <div class="section-kicker">
+                            02 / Your answer
+                        </div>
+
+                        <h2 id="result-title">
+                            Converted coordinates
+                        </h2>
+
+                    </div>
+
+                    <span class="status" id="statusText">
+                        ● Ready to explore
+                    </span>
+
+                </div>
+
+
+                <!-- MAIN RESULT -->
+                <div class="result-value" id="resultValue">
+                    (1.000000, 1.000000, 1.000000)
+                </div>
+
+                <p class="result-sub" id="resultName">
+                    Spherical coordinates (ρ, θ, φ)
+                </p>
+
+
+                <!-- INDIVIDUAL VALUES -->
+                <div class="result-grid" id="resultMetrics">
+
+                    <div class="metric">
+
+                        <small>
+                            ρ · distance from origin
+                        </small>
+
+                        <strong>
+                            1.732051
+                        </strong>
+
+                    </div>
+
+                    <div class="metric">
+
+                        <small>
+                            θ · angle around Z
+                        </small>
+
+                        <strong>
+                            45.000000°
+                        </strong>
+
+                    </div>
+
+                    <div class="metric">
+
+                        <small>
+                            φ · angle down from +Z
+                        </small>
+
+                        <strong>
+                            54.735610°
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- EXPLANATION -->
+                <div class="steps">
+
+                    <strong>What happened?</strong>
+
+                    <p id="explanation">
+
+                        The app describes the same point using
+                        a different set of measurements.
+                        The point itself does not move.
+
+                    </p>
+
+                    <p id="formulaLine">
+
+                        Cartesian → Spherical:
+                        measure the distance from the origin
+                        and two angles.
+
+                    </p>
+
+                </div>
+
+
+                <!-- POLAR CONVERSION NOTICE -->
+                <div class="notice"
+                    id="projectionNotice"
+                    hidden>
+                </div>
+
+
+                <!-- SPEECH AND COPY -->
+                <div class="actions">
+
+                    <button class="soft-btn"
+                        id="speakBtn"
+                        type="button">
+
+                        🔊 Read answer aloud
+
+                    </button>
+
+                    <button class="soft-btn"
+                        id="copyBtn"
+                        type="button">
+
+                        ▣ Copy result
+
+                    </button>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- 3D VISUALISATION SECTION -->
+        <section class="visual-section"
+            aria-labelledby="visual-title">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <div class="section-kicker">
+                        03 / See the point
+                    </div>
+
+                    <h2 id="visual-title">
+                        Two views. One location.
+                    </h2>
+
+                    <p>
+                        Drag inside either model to rotate it.
+                        Use the buttons to zoom or reset the camera.
+                    </p>
+
+                </div>
+
+
+                <!-- 3D CAMERA CONTROLS -->
+                <div class="view-controls">
+
+                    <button class="soft-btn"
+                        id="zoomInBtn"
+                        type="button"
+                        aria-label="Zoom in both 3D models">
+
+                        ＋ Zoom
+
+                    </button>
+
+                    <button class="soft-btn"
+                        id="zoomOutBtn"
+                        type="button"
+                        aria-label="Zoom out both 3D models">
+
+                        − Zoom
+
+                    </button>
+
+                    <button class="soft-btn"
+                        id="resetViewBtn"
+                        type="button">
+
+                        ↺ Reset view
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- TWO 3D MODELS -->
+            <div class="visual-grid">
+
+
+                <!-- ORIGINAL COORDINATE MODEL -->
+                <article class="viz-card">
+
+                    <div class="viz-head">
+
+                        <div>
+
+                            <h3 id="sourceVizTitle">
+                                Original · Cartesian
+                            </h3>
+
+                            <p id="sourceVizDesc">
+                                Your starting point in space.
+                            </p>
+
+                        </div>
+
+                        <span class="viz-pill">
+                            SOURCE
+                        </span>
+
+                    </div>
+
+
+                    <div class="canvas-wrap">
+
+                        <canvas
+                            id="sourceCanvas"
+                            class="viz-canvas"
+                            tabindex="0"
+                            role="img"
+                            aria-label="Interactive 3D model of the original coordinate point. Drag to rotate.">
+                        </canvas>
+
+                    </div>
+
+
+                    <div class="canvas-note">
+
+                        <span>
+                            ● Point &nbsp; ━ Position vector
+                        </span>
+
+                        <span>
+                            <kbd>Drag</kbd> rotate ·
+                            <kbd>Wheel</kbd> zoom
+                        </span>
+
+                    </div>
+
+                </article>
+
+
+                <!-- CONVERTED COORDINATE MODEL -->
+                <article class="viz-card">
+
+                    <div class="viz-head">
+
+                        <div>
+
+                            <h3 id="targetVizTitle">
+                                Converted · Spherical
+                            </h3>
+
+                            <p id="targetVizDesc">
+                                The same point in the new system.
+                            </p>
+
+                        </div>
+
+                        <span class="viz-pill">
+                            RESULT
+                        </span>
+
+                    </div>
+
+
+                    <div class="canvas-wrap">
+
+                        <canvas
+                            id="targetCanvas"
+                            class="viz-canvas"
+                            tabindex="0"
+                            role="img"
+                            aria-label="Interactive 3D model of the converted coordinate point. Drag to rotate.">
+                        </canvas>
+
+                    </div>
+
+
+                    <div class="canvas-note">
+
+                        <span>
+                            ● Point &nbsp; ━ Position vector
+                        </span>
+
+                        <span>
+                            <kbd>Drag</kbd> rotate ·
+                            <kbd>Wheel</kbd> zoom
+                        </span>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- REAL-WORLD PHYSICS APPLICATIONS -->
+        <section aria-labelledby="physics-title">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <div class="section-kicker">
+                        04 / Physics in the real world
+                    </div>
+
+                    <h2 id="physics-title">
+                        Where do we use these coordinates?
+                    </h2>
+
+                    <p>
+                        Choose an example to load a point and see
+                        how the coordinate system helps describe it.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="physics-grid">
+
+
+                <!-- CARTESIAN PHYSICS -->
+                <article class="physics-card">
+
+                    <div class="physics-icon" aria-hidden="true">
+                        🚀
+                    </div>
+
+                    <h3>
+                        Cartesian · Motion in a lab
+                    </h3>
+
+                    <p>
+                        Track a moving object using its left/right,
+                        forward/back and up/down position.
+                        Useful for projectile motion and 3D mechanics.
+                    </p>
+
+                    <button class="soft-btn preset-btn"
+                        data-example="cartesian">
+
+                        Try a particle position
+
+                    </button>
+
+                </article>
+
+
+                <!-- CYLINDRICAL PHYSICS -->
+                <article class="physics-card">
+
+                    <div class="physics-icon" aria-hidden="true">
+                        🧲
+                    </div>
+
+                    <h3>
+                        Cylindrical · Around a wire
+                    </h3>
+
+                    <p>
+                        When a long straight wire creates a circularly
+                        symmetric magnetic field, distance from the wire
+                        and angle around it are natural measurements.
+                    </p>
+
+                    <button class="soft-btn preset-btn"
+                        data-example="cylindrical">
+
+                        Try a wire-field point
+
+                    </button>
+
+                </article>
+
+
+                <!-- SPHERICAL PHYSICS -->
+                <article class="physics-card">
+
+                    <div class="physics-icon" aria-hidden="true">
+                        🪐
+                    </div>
+
+                    <h3>
+                        Spherical · Planets & fields
+                    </h3>
+
+                    <p>
+                        For a planet or an ideal point source,
+                        distance from the centre and direction
+                        are often more useful than three separate axes.
+                    </p>
+
+                    <button class="soft-btn preset-btn"
+                        data-example="spherical">
+
+                        Try an orbit position
+
+                    </button>
+
+                </article>
+
+
+                <!-- POLAR PHYSICS -->
+                <article class="physics-card">
+
+                    <div class="physics-icon" aria-hidden="true">
+                        🌀
+                    </div>
+
+                    <h3>
+                        Polar · Motion on a plane
+                    </h3>
+
+                    <p>
+                        Describe a point on a flat surface using
+                        its distance from a centre and its direction.
+                        Useful in planar rotation and orbit diagrams.
+                    </p>
+
+                    <button class="soft-btn preset-btn"
+                        data-example="polar">
+
+                        Try a 2D position
+
+                    </button>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- EDUCATIONAL SECTION -->
+        <section aria-labelledby="learn-title">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <div class="section-kicker">
+                        05 / Learn the language
+                    </div>
+
+                    <h2 id="learn-title">
+                        Four ways to describe a point
+                    </h2>
+
+                    <p>
+                        Think of each system as a different set
+                        of directions to the same destination.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="learn-grid">
+
+
+                <!-- CARTESIAN -->
+                <article class="learn-card">
+
+                    <h3>
+                        Cartesian (x, y, z)
+                    </h3>
+
+                    <p>
+                        Move along three straight axes:
+                        sideways (x), forward/back (y),
+                        then up/down (z).
+
+                        Like finding a seat using row,
+                        column and floor.
+                    </p>
+
+                    <span class="formula">
+                        x, y, z
+                    </span>
+
+                </article>
+
+
+                <!-- POLAR -->
+                <article class="learn-card">
+
+                    <h3>
+                        Polar (r, θ)
+                    </h3>
+
+                    <p>
+                        On a flat plane, move a distance r
+                        away from the centre and turn by
+                        angle θ from the positive x direction.
+
+                        It is 2D.
+                    </p>
+
+                    <span class="formula">
+                        x = r cos θ · y = r sin θ
+                    </span>
+
+                </article>
+
+
+                <!-- CYLINDRICAL -->
+                <article class="learn-card">
+
+                    <h3>
+                        Cylindrical (r, θ, z)
+                    </h3>
+
+                    <p>
+                        Polar coordinates plus a height.
+
+                        Imagine a point on a round water tank:
+                        distance from the middle,
+                        direction around it, and height.
+                    </p>
+
+                    <span class="formula">
+                        x = r cos θ · y = r sin θ · z = z
+                    </span>
+
+                </article>
+
+
+                <!-- SPHERICAL -->
+                <article class="learn-card">
+
+                    <h3>
+                        Spherical (ρ, θ, φ)
+                    </h3>
+
+                    <p>
+                        Measure the straight-line distance from
+                        the centre, turn around the vertical axis,
+                        then measure down from the positive z-axis.
+
+                        Like locating a star.
+                    </p>
+
+                    <span class="formula">
+                        x = ρ sin φ cos θ ·
+                        y = ρ sin φ sin θ ·
+                        z = ρ cos φ
+                    </span>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ACCESSIBILITY AND HELP SECTION -->
+        <section class="panel access-panel"
+            aria-labelledby="access-title">
+
+            <div>
+
+                <div class="section-kicker">
+                    Designed for more ways to use it
+                </div>
+
+                <h2 id="access-title">
+                    Accessibility & comfort
+                </h2>
+
+                <p class="access-info">
+
+                    Use the controls at the top for larger text,
+                    high contrast, easy-read spacing,
+                    reduced motion and a light theme.
+
+                    Every input has a text label;
+                    the app supports keyboard navigation
+                    and screen-reader announcements.
+
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <h2 style="font-size:1rem;margin-bottom:8px">
+                    Quick help
+                </h2>
+
+                <p class="access-info">
+
+                    Not sure what to enter?
+                    Pick one of the physics examples above.
+
+                    You can also press <strong>Tab</strong>
+                    to move between controls,
+                    <strong>Enter</strong> to convert,
+                    or use the "Read answer aloud" button
+                    where your browser supports speech.
+
+                </p>
+
+                <p class="access-info" style="margin-top:10px">
+
+                    For a screen reader, the conversion result
+                    is announced automatically.
+
+                    Canvas models are accompanied by
+                    text labels and descriptions.
+
+                </p>
+
+            </div>
+
+        </section>
+
     </main>
-  </div>
-  <script type="module" src="./js/main.js"></script>
+
+
+
+    <!-- FOOTER -->
+    <footer class="footer">
+
+        <span>
+            COORDINATE UNIVERSE · Engineering Physics learning project
+        </span>
+
+        <span>
+            Runs locally in your browser · No sign-in · No data uploaded
+        </span>
+
+    </footer>
+
+</div>
+
+
+<!-- JAVASCRIPT FILES -->
+<script src="visualizer.js" defer></script>
+<script src="controls.js" defer></script>
+<script src="main.js" defer></script>
+
 </body>
 </html>
