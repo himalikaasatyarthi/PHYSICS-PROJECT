@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090d18">
+  <title>CoordinateVerse | 3D Physics Lab</title>
+  <link rel="stylesheet" href="./css/style.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#">
+        <span class="brand-mark">CV</span>
+        <span><strong>CoordinateVerse</strong><small>INTERACTIVE PHYSICS LAB</small></span>
+      </a>
+      <div class="nav-label">WORKSPACE</div>
+      <a class="nav-link active" href="#lab"><span>⌘</span> Coordinate Lab</a>
+      <a class="nav-link" href="#physics"><span>◉</span> Physics connections</a>
+      <a class="nav-link" href="#guide"><span>▤</span> Quick guide</a>
+      <div class="sidebar-bottom">
+        <div class="status-card">
+          <span class="status-dot" id="engine-dot"></span>
+          <div><strong id="engine-status">JavaScript fallback</strong><small>Calculation engine</small></div>
+        </div>
+        <p class="sidebar-note">A learning project for exploring position in 2D and 3D space.</p>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div><div class="eyebrow">PHYSICS • MATHEMATICS • VISUALIZATION</div><h1>Explore space in 3D.</h1></div>
+        <div class="topbar-chip"><span class="live-dot"></span> LIVE PLAYGROUND</div>
+      </header>
+
+      <section class="intro-row">
+        <div>
+          <p class="lead">Move a point through space and see how its position is described in different coordinate systems.</p>
+        </div>
+        <div class="intro-tag">Cartesian → Polar → Cylindrical → Spherical</div>
+      </section>
+
+      <section class="workspace" id="lab">
+        <div class="panel visual-panel">
+          <div class="panel-heading">
+            <div><div class="eyebrow">3D SPACE</div><h2>Coordinate playground</h2></div>
+            <span class="tiny-pill">DRAG TO ORBIT</span>
+          </div>
+          <div id="scene-container" aria-label="Interactive 3D coordinate visualization"></div>
+          <div class="legend">
+            <span><i class="legend-x"></i> X axis</span>
+            <span><i class="legend-y"></i> Y axis</span>
+            <span><i class="legend-z"></i> Z axis</span>
+            <span><i class="legend-point"></i> Point P</span>
+          </div>
+          <div class="scene-actions">
+            <button class="button button-ghost" id="reset-view">Reset view</button>
+            <label class="toggle"><input type="checkbox" id="grid-toggle" checked><span></span> Grid</label>
+            <label class="toggle"><input type="checkbox" id="projection-toggle" checked><span></span> Projections</label>
+          </div>
+        </div>
+
+        <div class="panel controls-panel">
+          <div class="panel-heading">
+            <div><div class="eyebrow">CONTROL POINT P</div><h2>Set position</h2></div>
+            <span class="point-label">P</span>
+          </div>
+          <p class="panel-copy">Change the values or use the sliders. The 3D point and all coordinate readouts update together.</p>
+
+          <div class="input-grid">
+            <label class="field"><span>X <b>Cartesian</b></span><input id="x-input" type="number" min="-5" max="5" step="0.1" value="3"></label>
+            <label class="field"><span>Y <b>Cartesian</b></span><input id="y-input" type="number" min="-5" max="5" step="0.1" value="4"></label>
+            <label class="field"><span>Z <b>Cartesian</b></span><input id="z-input" type="number" min="-5" max="5" step="0.1" value="3"></label>
+          </div>
+          <div class="sliders">
+            <label class="slider-row"><span>X position</span><input id="x-slider" type="range" min="-5" max="5" step="0.1" value="3"><output id="x-output">3.0</output></label>
+            <label class="slider-row"><span>Y position</span><input id="y-slider" type="range" min="-5" max="5" step="0.1" value="4"><output id="y-output">4.0</output></label>
+            <label class="slider-row"><span>Z position</span><input id="z-slider" type="range" min="-5" max="5" step="0.1" value="3"><output id="z-output">3.0</output></label>
+          </div>
+
+          <div class="readout-heading"><span>COORDINATE CONVERSION</span><span class="unit-note">Angles in degrees</span></div>
+          <div class="result-card">
+            <div class="result-title"><span class="result-icon polar-icon">P</span><strong>Polar (XY plane)</strong></div>
+            <div class="result-values"><div><small>r</small><strong id="polar-r">5.00</strong></div><div><small>θ</small><strong id="polar-theta">53.13°</strong></div></div>
+          </div>
+          <div class="result-card">
+            <div class="result-title"><span class="result-icon cyl-icon">C</span><strong>Cylindrical</strong></div>
+            <div class="result-values"><div><small>r</small><strong id="cyl-r">5.00</strong></div><div><small>θ</small><strong id="cyl-theta">53.13°</strong></div><div><small>z</small><strong id="cyl-z">3.00</strong></div></div>
+          </div>
+          <div class="result-card">
+            <div class="result-title"><span class="result-icon sph-icon">S</span><strong>Spherical</strong></div>
+            <div class="result-values"><div><small>ρ</small><strong id="sph-rho">5.83</strong></div><div><small>θ</small><strong id="sph-theta">53.13°</strong></div><div><small>φ</small><strong id="sph-phi">59.04°</strong></div></div>
+          </div>
+          <p class="hint">Convention: spherical φ is measured down from the positive Z-axis; θ is the azimuth angle in the XY plane.</p>
+        </div>
+      </section>
+
+      <section class="section-block" id="physics">
+        <div class="section-heading"><div><div class="eyebrow">WHY IT MATTERS</div><h2>Coordinate systems in physics</h2></div><p>Choose a geometry that matches the symmetry of the problem.</p></div>
+        <div class="physics-grid">
+          <article class="physics-card"><div class="physics-symbol sphere-symbol">◎</div><h3>Spherical symmetry</h3><p>Useful for fields around a point charge or a spherical mass distribution.</p><div class="formula">E = kQ / r²</div><small>Example: electric field of a point charge</small></article>
+          <article class="physics-card"><div class="physics-symbol cylinder-symbol">◉</div><h3>Cylindrical symmetry</h3><p>Useful for fields around a long straight current-carrying wire.</p><div class="formula">B = μ₀I / 2πr</div><small>Example: magnetic field around a wire</small></article>
+          <article class="physics-card"><div class="physics-symbol polar-symbol">↗</div><h3>Polar motion</h3><p>Useful for describing motion along a circular path using radius and angle.</p><div class="formula">v = rω</div><small>Example: uniform circular motion</small></article>
+        </div>
+      </section>
+
+      <section class="section-block guide-section" id="guide">
+        <div class="section-heading"><div><div class="eyebrow">QUICK REFERENCE</div><h2>Understand the coordinates</h2></div></div>
+        <div class="guide-grid">
+          <div class="guide-item"><strong>Polar</strong><p>Two-dimensional position using distance r from the origin and angle θ from the positive X-axis.</p><code>x = r cos θ</code><code>y = r sin θ</code></div>
+          <div class="guide-item"><strong>Cylindrical</strong><p>Three-dimensional position using radius r, azimuth θ and height z.</p><code>x = r cos θ</code><code>y = r sin θ</code><code>z = z</code></div>
+          <div class="guide-item"><strong>Spherical</strong><p>Three-dimensional position using distance ρ, azimuth θ and polar angle φ from +Z.</p><code>x = ρ sin φ cos θ</code><code>y = ρ sin φ sin θ</code><code>z = ρ cos φ</code></div>
+        </div>
+      </section>
+      <footer>COORDINATEVERSE <span>Built for learning physics through visualization.</span></footer>
+    </main>
+  </div>
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
