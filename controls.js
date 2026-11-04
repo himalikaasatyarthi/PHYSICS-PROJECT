@@ -1,51 +1,93 @@
-export function setupControls({ visualizer, calculate }) {
-  const ids = ["x", "y", "z"];
-  const inputs = Object.fromEntries(ids.map(id => [id, document.getElementById(`${id}-input`)]));
-  const sliders = Object.fromEntries(ids.map(id => [id, document.getElementById(`${id}-slider`)]));
-  const outputs = Object.fromEntries(ids.map(id => [id, document.getElementById(`${id}-output`)]));
+/* Coordinate Universe — accessibility and convenience controls.
+ * Keeps display preferences, camera buttons, clipboard and speech features out
+ * of the coordinate-conversion logic.
+ */
+(function () {
+  'use strict';
 
-  function readNumber(input) {
-    const value = Number(input.value);
-    return Number.isFinite(value) ? Math.max(-5, Math.min(5, value)) : 0;
+  function byId(id) {
+    return document.getElementById(id);
   }
 
-  function update(source) {
-    const point = {
-      x: readNumber(inputs.x),
-      y: readNumber(inputs.y),
-      z: readNumber(inputs.z)
-    };
-
-    ids.forEach(id => {
-      inputs[id].value = point[id];
-      sliders[id].value = point[id];
-      outputs[id].textContent = point[id].toFixed(1);
+  function bindAccessibility(drawAll) {
+    byId('themeBtn').addEventListener('click', function () {
+      const enabled = document.body.classList.toggle('light');
+      byId('themeBtn').setAttribute('aria-pressed', String(enabled));
+      byId('themeBtn').textContent = enabled ? '☾ Dark mode' : '☼ Light mode';
+      drawAll();
     });
 
-    const result = calculate(point.x, point.y, point.z);
-    document.getElementById("polar-r").textContent = result.r.toFixed(2);
-    document.getElementById("polar-theta").textContent = `${result.theta.toFixed(2)}°`;
-    document.getElementById("cyl-r").textContent = result.r.toFixed(2);
-    document.getElementById("cyl-theta").textContent = `${result.theta.toFixed(2)}°`;
-    document.getElementById("cyl-z").textContent = point.z.toFixed(2);
-    document.getElementById("sph-rho").textContent = result.rho.toFixed(2);
-    document.getElementById("sph-theta").textContent = `${result.theta.toFixed(2)}°`;
-    document.getElementById("sph-phi").textContent = `${result.phi.toFixed(2)}°`;
+    byId('contrastBtn').addEventListener('click', function () {
+      const enabled = document.body.classList.toggle('high-contrast');
+      byId('contrastBtn').setAttribute('aria-pressed', String(enabled));
+      drawAll();
+    });
 
-    visualizer.setPoint(point.x, point.y, point.z);
+    byId('textBtn').addEventListener('click', function () {
+      const enabled = document.body.classList.toggle('large-text');
+      byId('textBtn').setAttribute('aria-pressed', String(enabled));
+    });
+
+    byId('easyBtn').addEventListener('click', function () {
+      const enabled = document.body.classList.toggle('easy-read');
+      byId('easyBtn').setAttribute('aria-pressed', String(enabled));
+    });
+
+    byId('motionBtn').addEventListener('click', function () {
+      const enabled = document.body.classList.toggle('reduce-motion');
+      byId('motionBtn').setAttribute('aria-pressed', String(enabled));
+    });
   }
 
-  ids.forEach(id => {
-    inputs[id].addEventListener("input", () => update("input"));
-    sliders[id].addEventListener("input", () => {
-      inputs[id].value = sliders[id].value;
-      update("slider");
+  function bindViewControls(visualizer) {
+    byId('zoomInBtn').addEventListener('click', visualizer.zoomIn);
+    byId('zoomOutBtn').addEventListener('click', visualizer.zoomOut);
+    byId('resetViewBtn').addEventListener('click', visualizer.resetCamera);
+  }
+
+  function bindCopyAndSpeech(getTargetName, getResult, getExplanation) {
+    byId('copyBtn').addEventListener('click', async function () {
+      const text = getTargetName() + ': ' + getResult();
+
+      try {
+        if (!navigator.clipboard || !navigator.clipboard.writeText) {
+          throw new Error('Clipboard unavailable');
+        }
+
+        await navigator.clipboard.writeText(text);
+        byId('copyBtn').textContent = '✓ Copied';
+      } catch (error) {
+        byId('copyBtn').textContent = 'Copy not available';
+      }
     });
-  });
 
-  document.getElementById("reset-view").addEventListener("click", () => visualizer.resetView());
-  document.getElementById("grid-toggle").addEventListener("change", event => visualizer.showGrid(event.target.checked));
-  document.getElementById("projection-toggle").addEventListener("change", event => visualizer.showProjections(event.target.checked));
+    byId('speakBtn').addEventListener('click', function () {
+      if (
+        !('speechSynthesis' in window) ||
+        !('SpeechSynthesisUtterance' in window)
+      ) {
+        byId('speakBtn').textContent =
+          'Speech is not available in this browser';
+        return;
+      }
 
-  update("initial");
-}
+      window.speechSynthesis.cancel();
+
+      const message =
+        'Converted to ' + getTargetName() +
+        ' coordinates. ' + getResult() +
+        '. ' + getExplanation();
+
+      const utterance = new SpeechSynthesisUtterance(message);
+      utterance.rate = 0.92;
+
+      window.speechSynthesis.speak(utterance);
+    });
+  }
+
+  window.CoordinateControls = {
+    bindAccessibility: bindAccessibility,
+    bindViewControls: bindViewControls,
+    bindCopyAndSpeech: bindCopyAndSpeech
+  };
+})();
